@@ -40,8 +40,6 @@ function toData(input: ProductInput) {
 
 export async function listProducts(query: ProductQuery) {
   const where: Prisma.ProductWhereInput = {};
-  // SQLite's LIKE is already case-insensitive for ASCII.
-  // On Postgres this would need `mode: "insensitive"`.
   if (query.search) where.name = { contains: query.search };
   if (query.status !== "all") where.status = query.status === "active" ? "ACTIVE" : "INACTIVE";
   if (query.category) where.category = { slug: query.category };
@@ -55,7 +53,6 @@ export async function listProducts(query: ProductQuery) {
   const items = await db.product.findMany({
     where,
     include: withCategory,
-    // id as a tie-breaker keeps pagination stable when values are equal
     orderBy: [{ [sortColumn]: query.order }, { id: "asc" }],
     skip: (page - 1) * PAGE_SIZE,
     take: PAGE_SIZE,

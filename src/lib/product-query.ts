@@ -52,7 +52,6 @@ export function hasActiveFilters(q: ProductQuery) {
   return q.search !== "" || q.status !== "all" || q.category !== "";
 }
 
-// Builds a /products URL, leaving default values out so links stay short.
 export function productsHref(q: ProductQuery, changes: Partial<ProductQuery> = {}) {
   const next = { ...q, ...changes };
   const params = new URLSearchParams();

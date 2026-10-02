@@ -28,7 +28,6 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
       <ProductsToolbar query={query} categories={categories} />
 
-      {/* Keyed on the query so the skeleton shows while a new page of results loads */}
       <Suspense key={JSON.stringify(query)} fallback={<ProductsSkeleton />}>
         <ProductResults query={query} canDelete={can(user.role, "product:delete")} />
       </Suspense>

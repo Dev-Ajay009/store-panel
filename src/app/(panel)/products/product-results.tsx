@@ -38,7 +38,6 @@ export async function ProductResults({ query, canDelete }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Desktop / tablet */}
       <div className="card hidden overflow-x-auto md:block">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Products</caption>
@@ -96,7 +95,6 @@ export async function ProductResults({ query, canDelete }: Props) {
         </table>
       </div>
 
-      {/* Mobile */}
       <ul className="space-y-3 md:hidden">
         {items.map((p) => (
           <li key={p.id} className="card p-4">
