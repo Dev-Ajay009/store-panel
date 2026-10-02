@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         Role      @default(MANAGER)
+  createdAt    DateTime  @default(now())
+  products     Product[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  // stored in cents to avoid floating point issues
+  priceCents  Int
+  stock       Int
+  imageUrl    String?
+  status      ProductStatus @default(ACTIVE)
+  categoryId  Int
+  category    Category      @relation(fields: [categoryId], references: [id])
+  createdById String?
+  createdBy   User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([createdAt])
+}
