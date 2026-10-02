@@ -11,8 +11,16 @@ import { ProductResults } from "./product-results";
 
 export const metadata: Metadata = { title: "Products" };
 
-export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const [user, params, categories] = await Promise.all([requireUser(), searchParams, listCategories()]);
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const [user, params, categories] = await Promise.all([
+    requireUser(),
+    searchParams,
+    listCategories(),
+  ]);
   const query = parseProductQuery(params);
 
   return (
@@ -29,7 +37,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       <ProductsToolbar query={query} categories={categories} />
 
       <Suspense key={JSON.stringify(query)} fallback={<ProductsSkeleton />}>
-        <ProductResults query={query} canDelete={can(user.role, "product:delete")} />
+        <ProductResults
+          query={query}
+          canDelete={can(user.role, "product:delete")}
+        />
       </Suspense>
     </div>
   );

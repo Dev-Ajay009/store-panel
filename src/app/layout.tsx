@@ -6,7 +6,9 @@ export const metadata: Metadata = {
   description: "Product management for the store",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body className="font-sans">{children}</body>

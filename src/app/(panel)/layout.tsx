@@ -3,7 +3,11 @@ import { NavLink } from "@/components/nav-link";
 import { requireUser } from "@/server/auth";
 import { logout } from "../login/actions";
 
-export default async function PanelLayout({ children }: { children: React.ReactNode }) {
+export default async function PanelLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const user = await requireUser();
 
   return (
@@ -21,7 +25,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             Store Panel
           </Link>
 
-          <nav aria-label="Main" className="order-last flex w-full gap-1 sm:order-none sm:w-auto">
+          <nav
+            aria-label="Main"
+            className="order-last flex w-full gap-1 sm:order-none sm:w-auto"
+          >
             <NavLink href="/dashboard">Dashboard</NavLink>
             <NavLink href="/products">Products</NavLink>
           </nav>
@@ -29,7 +36,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           <div className="ml-auto flex items-center gap-3">
             <div className="text-right text-sm leading-tight">
               <p className="font-medium">{user.name}</p>
-              <p className="text-xs text-gray-500">{user.role === "ADMIN" ? "Admin" : "Manager"}</p>
+              <p className="text-xs text-gray-500">
+                {user.role === "ADMIN" ? "Admin" : "Manager"}
+              </p>
             </div>
             <form action={logout}>
               <button type="submit" className="btn btn-secondary py-1.5">

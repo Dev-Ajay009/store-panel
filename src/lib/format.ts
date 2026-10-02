@@ -1,5 +1,12 @@
-const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
-const dateFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
 const dateTimeFmt = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   month: "short",

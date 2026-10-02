@@ -25,12 +25,19 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <div className="space-y-5">
-      <Link href="/products" className="text-sm text-gray-600 hover:text-gray-900 hover:underline">
+      <Link
+        href="/products"
+        className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
+      >
         ← Back to products
       </Link>
 
       <article className="card overflow-hidden md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <ProductImage src={product.imageUrl} alt={product.name} className="aspect-[4/3] w-full text-5xl md:h-full" />
+        <ProductImage
+          src={product.imageUrl}
+          alt={product.name}
+          className="aspect-[4/3] w-full text-5xl md:h-full"
+        />
 
         <div className="space-y-5 p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -41,16 +48,22 @@ export default async function ProductPage({ params }: Props) {
             <StatusBadge status={product.status} />
           </div>
 
-          <p className="whitespace-pre-line text-gray-700">{product.description}</p>
+          <p className="whitespace-pre-line text-gray-700">
+            {product.description}
+          </p>
 
           <dl className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 text-sm">
             <div>
               <dt className="text-gray-500">Price</dt>
-              <dd className="mt-0.5 text-lg font-semibold">{formatPrice(product.priceCents)}</dd>
+              <dd className="mt-0.5 text-lg font-semibold">
+                {formatPrice(product.priceCents)}
+              </dd>
             </div>
             <div>
               <dt className="text-gray-500">Stock</dt>
-              <dd className={`mt-0.5 text-lg font-semibold ${product.stock === 0 ? "text-red-600" : ""}`}>
+              <dd
+                className={`mt-0.5 text-lg font-semibold ${product.stock === 0 ? "text-red-600" : ""}`}
+              >
                 {product.stock === 0 ? "Out of stock" : product.stock}
               </dd>
             </div>
@@ -66,12 +79,23 @@ export default async function ProductPage({ params }: Props) {
 
           <div className="flex flex-wrap items-start gap-2 border-t border-gray-100 pt-5">
             {can(user.role, "product:edit") && (
-              <Link href={`/products/${product.id}/edit`} className="btn btn-primary">
+              <Link
+                href={`/products/${product.id}/edit`}
+                className="btn btn-primary"
+              >
                 Edit
               </Link>
             )}
-            {can(user.role, "product:status") && <StatusToggle id={product.id} status={product.status} />}
-            {can(user.role, "product:delete") && <DeleteButton id={product.id} name={product.name} redirectToList />}
+            {can(user.role, "product:status") && (
+              <StatusToggle id={product.id} status={product.status} />
+            )}
+            {can(user.role, "product:delete") && (
+              <DeleteButton
+                id={product.id}
+                name={product.name}
+                redirectToList
+              />
+            )}
           </div>
         </div>
       </article>

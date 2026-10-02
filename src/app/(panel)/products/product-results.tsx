@@ -20,7 +20,9 @@ export async function ProductResults({ query, canDelete }: Props) {
     return hasActiveFilters(query) ? (
       <div className="card px-6 py-12 text-center">
         <p className="font-medium">No products found.</p>
-        <p className="mt-1 text-sm text-gray-600">Try a different search or remove some filters.</p>
+        <p className="mt-1 text-sm text-gray-600">
+          Try a different search or remove some filters.
+        </p>
         <Link href="/products" className="btn btn-secondary mt-4">
           Clear filters
         </Link>
@@ -28,7 +30,9 @@ export async function ProductResults({ query, canDelete }: Props) {
     ) : (
       <div className="card px-6 py-12 text-center">
         <p className="font-medium">Your store has no products yet.</p>
-        <p className="mt-1 text-sm text-gray-600">Add your first product to start selling.</p>
+        <p className="mt-1 text-sm text-gray-600">
+          Add your first product to start selling.
+        </p>
         <Link href="/products/new" className="btn btn-primary mt-4">
           Create first product
         </Link>
@@ -71,21 +75,34 @@ export async function ProductResults({ query, canDelete }: Props) {
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <ProductImage src={p.imageUrl} alt={p.name} className="size-10 shrink-0 rounded-md" />
-                    <Link href={`/products/${p.id}`} className="font-medium hover:underline">
+                    <ProductImage
+                      src={p.imageUrl}
+                      alt={p.name}
+                      className="size-10 shrink-0 rounded-md"
+                    />
+                    <Link
+                      href={`/products/${p.id}`}
+                      className="font-medium hover:underline"
+                    >
                       {p.name}
                     </Link>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-gray-600">{p.category.name}</td>
-                <td className="px-4 py-3 text-right tabular-nums">{formatPrice(p.priceCents)}</td>
-                <td className={`px-4 py-3 text-right tabular-nums ${p.stock === 0 ? "text-red-600" : ""}`}>
+                <td className="px-4 py-3 text-right tabular-nums">
+                  {formatPrice(p.priceCents)}
+                </td>
+                <td
+                  className={`px-4 py-3 text-right tabular-nums ${p.stock === 0 ? "text-red-600" : ""}`}
+                >
                   {p.stock}
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={p.status} />
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-gray-600">{formatDate(p.createdAt)}</td>
+                <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                  {formatDate(p.createdAt)}
+                </td>
                 <td className="px-4 py-3">
                   <RowActions product={p} canDelete={canDelete} />
                 </td>
@@ -99,10 +116,17 @@ export async function ProductResults({ query, canDelete }: Props) {
         {items.map((p) => (
           <li key={p.id} className="card p-4">
             <div className="flex gap-3">
-              <ProductImage src={p.imageUrl} alt={p.name} className="size-16 shrink-0 rounded-md" />
+              <ProductImage
+                src={p.imageUrl}
+                alt={p.name}
+                className="size-16 shrink-0 rounded-md"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <Link href={`/products/${p.id}`} className="truncate font-medium hover:underline">
+                  <Link
+                    href={`/products/${p.id}`}
+                    className="truncate font-medium hover:underline"
+                  >
                     {p.name}
                   </Link>
                   <StatusBadge status={p.status} />
@@ -115,7 +139,11 @@ export async function ProductResults({ query, canDelete }: Props) {
                   </div>
                   <div className="flex gap-1">
                     <dt className="text-gray-500">Stock</dt>
-                    <dd className={`font-medium ${p.stock === 0 ? "text-red-600" : ""}`}>{p.stock}</dd>
+                    <dd
+                      className={`font-medium ${p.stock === 0 ? "text-red-600" : ""}`}
+                    >
+                      {p.stock}
+                    </dd>
                   </div>
                   <div className="flex gap-1">
                     <dt className="text-gray-500">Added</dt>
@@ -131,12 +159,23 @@ export async function ProductResults({ query, canDelete }: Props) {
         ))}
       </ul>
 
-      <Pagination query={query} page={page} pageCount={pageCount} total={total} />
+      <Pagination
+        query={query}
+        page={page}
+        pageCount={pageCount}
+        total={total}
+      />
     </div>
   );
 }
 
-function RowActions({ product, canDelete }: { product: ProductWithCategory; canDelete: boolean }) {
+function RowActions({
+  product,
+  canDelete,
+}: {
+  product: ProductWithCategory;
+  canDelete: boolean;
+}) {
   return (
     <div className="flex flex-wrap items-start gap-2 md:justify-end">
       <Link
@@ -147,7 +186,9 @@ function RowActions({ product, canDelete }: { product: ProductWithCategory; canD
         Edit
       </Link>
       <StatusToggle id={product.id} status={product.status} compact />
-      {canDelete && <DeleteButton id={product.id} name={product.name} compact />}
+      {canDelete && (
+        <DeleteButton id={product.id} name={product.name} compact />
+      )}
     </div>
   );
 }

@@ -8,9 +8,17 @@ import { updateProductAction } from "../../actions";
 
 export const metadata: Metadata = { title: "Edit product" };
 
-export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
-  const [user, product, categories] = await Promise.all([requireUser(), getProduct(id), listCategories()]);
+  const [user, product, categories] = await Promise.all([
+    requireUser(),
+    getProduct(id),
+    listCategories(),
+  ]);
 
   if (!product) notFound();
   if (!can(user.role, "product:edit")) redirect(`/products/${id}`);

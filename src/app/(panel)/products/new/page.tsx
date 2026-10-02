@@ -9,7 +9,10 @@ import { createProductAction } from "../actions";
 export const metadata: Metadata = { title: "New product" };
 
 export default async function NewProductPage() {
-  const [user, categories] = await Promise.all([requireUser(), listCategories()]);
+  const [user, categories] = await Promise.all([
+    requireUser(),
+    listCategories(),
+  ]);
   if (!can(user.role, "product:create")) redirect("/products");
 
   return (

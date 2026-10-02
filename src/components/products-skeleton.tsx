@@ -1,6 +1,10 @@
 export function ProductsSkeleton() {
   return (
-    <div className="card divide-y divide-gray-100" aria-busy="true" aria-live="polite">
+    <div
+      className="card divide-y divide-gray-100"
+      aria-busy="true"
+      aria-live="polite"
+    >
       <span className="sr-only">Loading products…</span>
       {Array.from({ length: 6 }, (_, i) => (
         <div key={i} className="flex animate-pulse items-center gap-4 p-4">
