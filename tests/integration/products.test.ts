@@ -2,7 +2,11 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/db";
 import { parseProductQuery } from "@/lib/product-query";
 import { productSchema } from "@/lib/validation";
-import { ForbiddenError, InvalidInputError, NotFoundError } from "@/server/errors";
+import {
+  ForbiddenError,
+  InvalidInputError,
+  NotFoundError,
+} from "@/server/errors";
 import {
   createProduct,
   deleteProduct,
@@ -33,14 +37,30 @@ function input(overrides: Record<string, string> = {}) {
 
 beforeAll(async () => {
   const [a, m] = await Promise.all([
-    db.user.create({ data: { email: "a@test.local", name: "Admin", role: "ADMIN", passwordHash: "x" } }),
-    db.user.create({ data: { email: "m@test.local", name: "Manager", role: "MANAGER", passwordHash: "x" } }),
+    db.user.create({
+      data: {
+        email: "a@test.local",
+        name: "Admin",
+        role: "ADMIN",
+        passwordHash: "x",
+      },
+    }),
+    db.user.create({
+      data: {
+        email: "m@test.local",
+        name: "Manager",
+        role: "MANAGER",
+        passwordHash: "x",
+      },
+    }),
   ]);
   admin = { id: a.id, role: a.role };
   manager = { id: m.id, role: m.role };
 
-  food = (await db.category.create({ data: { name: "Food", slug: "food" } })).id;
-  drink = (await db.category.create({ data: { name: "Drink", slug: "drink" } })).id;
+  food = (await db.category.create({ data: { name: "Food", slug: "food" } }))
+    .id;
+  drink = (await db.category.create({ data: { name: "Drink", slug: "drink" } }))
+    .id;
 });
 
 beforeEach(async () => {
@@ -67,7 +87,9 @@ describe("createProduct", () => {
   });
 
   it("rejects a category that does not exist", async () => {
-    await expect(createProduct(admin, input({ categoryId: "9999" }))).rejects.toBeInstanceOf(InvalidInputError);
+    await expect(
+      createProduct(admin, input({ categoryId: "9999" })),
+    ).rejects.toBeInstanceOf(InvalidInputError);
     expect(await db.product.count()).toBe(0);
   });
 });
@@ -75,7 +97,11 @@ describe("createProduct", () => {
 describe("updateProduct", () => {
   it("updates an existing product", async () => {
     const { id } = await createProduct(admin, input());
-    await updateProduct(manager, id, input({ name: "Renamed", stock: "0", categoryId: String(drink) }));
+    await updateProduct(
+      manager,
+      id,
+      input({ name: "Renamed", stock: "0", categoryId: String(drink) }),
+    );
 
     const stored = await getProduct(id);
     expect(stored?.name).toBe("Renamed");
@@ -84,7 +110,9 @@ describe("updateProduct", () => {
   });
 
   it("throws NotFoundError for an unknown id", async () => {
-    await expect(updateProduct(admin, "missing", input())).rejects.toBeInstanceOf(NotFoundError);
+    await expect(
+      updateProduct(admin, "missing", input()),
+    ).rejects.toBeInstanceOf(NotFoundError);
   });
 });
 
@@ -94,12 +122,20 @@ describe("setProductStatus", () => {
     await setProductStatus(manager, id, "INACTIVE");
     expect((await getProduct(id))?.status).toBe("INACTIVE");
   });
+
+  it("throws NotFoundError for an unknown id", async () => {
+    await expect(
+      setProductStatus(admin, "missing", "ACTIVE"),
+    ).rejects.toBeInstanceOf(NotFoundError);
+  });
 });
 
 describe("deleteProduct", () => {
   it("does not let a manager delete, even when called directly", async () => {
     const { id } = await createProduct(admin, input());
-    await expect(deleteProduct(manager, id)).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(deleteProduct(manager, id)).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
     expect(await getProduct(id)).not.toBeNull();
   });
 
@@ -110,41 +146,90 @@ describe("deleteProduct", () => {
   });
 
   it("throws NotFoundError when the product is already gone", async () => {
-    await expect(deleteProduct(admin, "missing")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(deleteProduct(admin, "missing")).rejects.toBeInstanceOf(
+      NotFoundError,
+    );
   });
 });
 
 describe("listProducts", () => {
   beforeEach(async () => {
     const rows = [
-      { name: "Margherita Pizza", price: "12", stock: "20", categoryId: food, status: "ACTIVE" },
-      { name: "Pepperoni Pizza", price: "14", stock: "3", categoryId: food, status: "ACTIVE" },
-      { name: "Four Cheese Pizza", price: "15", stock: "0", categoryId: food, status: "INACTIVE" },
-      { name: "Pizza Soda", price: "3", stock: "40", categoryId: drink, status: "ACTIVE" },
-      { name: "Burger", price: "10", stock: "8", categoryId: food, status: "ACTIVE" },
+      {
+        name: "Margherita Pizza",
+        price: "12",
+        stock: "20",
+        categoryId: food,
+        status: "ACTIVE",
+      },
+      {
+        name: "Pepperoni Pizza",
+        price: "14",
+        stock: "3",
+        categoryId: food,
+        status: "ACTIVE",
+      },
+      {
+        name: "Four Cheese Pizza",
+        price: "15",
+        stock: "0",
+        categoryId: food,
+        status: "INACTIVE",
+      },
+      {
+        name: "Pizza Soda",
+        price: "3",
+        stock: "40",
+        categoryId: drink,
+        status: "ACTIVE",
+      },
+      {
+        name: "Burger",
+        price: "10",
+        stock: "8",
+        categoryId: food,
+        status: "ACTIVE",
+      },
     ];
     for (const r of rows) {
-      await createProduct(admin, input({ ...r, categoryId: String(r.categoryId) }));
+      await createProduct(
+        admin,
+        input({ ...r, categoryId: String(r.categoryId) }),
+      );
     }
   });
 
   it("combines search, status and category filters", async () => {
     const result = await listProducts(
-      parseProductQuery({ search: "PIZZA", status: "active", category: "food", sort: "name", order: "asc" }),
+      parseProductQuery({
+        search: "PIZZA",
+        status: "active",
+        category: "food",
+        sort: "name",
+        order: "asc",
+      }),
     );
-    expect(result.items.map((p) => p.name)).toEqual(["Margherita Pizza", "Pepperoni Pizza"]);
+    expect(result.items.map((p) => p.name)).toEqual([
+      "Margherita Pizza",
+      "Pepperoni Pizza",
+    ]);
     expect(result.total).toBe(2);
   });
 
   it("sorts by price in both directions", async () => {
-    const asc = await listProducts(parseProductQuery({ sort: "price", order: "asc" }));
-    const desc = await listProducts(parseProductQuery({ sort: "price", order: "desc" }));
+    const asc = await listProducts(
+      parseProductQuery({ sort: "price", order: "asc" }),
+    );
+    const desc = await listProducts(
+      parseProductQuery({ sort: "price", order: "desc" }),
+    );
     expect(asc.items[0].name).toBe("Pizza Soda");
     expect(desc.items[0].name).toBe("Four Cheese Pizza");
   });
 
   it("paginates and clamps a page that is out of range", async () => {
-    for (let i = 0; i < 6; i++) await createProduct(admin, input({ name: `Extra ${i}` }));
+    for (let i = 0; i < 6; i++)
+      await createProduct(admin, input({ name: `Extra ${i}` }));
 
     const page2 = await listProducts(parseProductQuery({ page: "2" }));
     expect(page2.total).toBe(11);
@@ -163,7 +248,12 @@ describe("getDashboardData", () => {
     await createProduct(admin, input({ stock: "6", status: "INACTIVE" }));
 
     const data = await getDashboardData();
-    expect(data).toMatchObject({ total: 2, active: 1, inactive: 1, totalStock: 10 });
+    expect(data).toMatchObject({
+      total: 2,
+      active: 1,
+      inactive: 1,
+      totalStock: 10,
+    });
     expect(data.recent).toHaveLength(2);
   });
 });

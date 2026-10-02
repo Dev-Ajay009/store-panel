@@ -2,7 +2,6 @@
 
 import type { ProductStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { productSchema, type ProductField } from "@/lib/validation";
 import { requireUser } from "@/server/auth";
@@ -22,6 +21,7 @@ export type ProductFormState = {
   message?: string;
   fieldErrors?: Partial<Record<ProductField, string[]>>;
   values?: Partial<Record<ProductField, string>>;
+  productId?: string;
 };
 
 export type ActionResult = { error?: string };
@@ -45,10 +45,10 @@ function errorMessage(err: unknown) {
   return "Something went wrong. Please try again.";
 }
 
-function refreshProductPages(id?: string) {
+function refreshProductPages() {
   revalidatePath("/products");
   revalidatePath("/dashboard");
-  if (id) revalidatePath(`/products/${id}`);
+  revalidatePath("/products/[id]", "page");
 }
 
 async function saveProduct(
@@ -67,12 +67,12 @@ async function saveProduct(
     };
   }
 
-  let productId: string;
   try {
     const product = id
       ? await updateProduct(user, id, parsed.data)
       : await createProduct(user, parsed.data);
-    productId = product.id;
+    refreshProductPages();
+    return { productId: product.id };
   } catch (err) {
     if (err instanceof InvalidInputError) {
       return {
@@ -83,9 +83,6 @@ async function saveProduct(
     }
     return { message: errorMessage(err), values };
   }
-
-  refreshProductPages(productId);
-  redirect(`/products/${productId}`);
 }
 
 export async function createProductAction(
@@ -108,8 +105,9 @@ export async function changeStatusAction(
   status: ProductStatus,
 ): Promise<ActionResult> {
   const user = await requireUser();
-  if (status !== "ACTIVE" && status !== "INACTIVE")
+  if (status !== "ACTIVE" && status !== "INACTIVE") {
     return { error: "Invalid status." };
+  }
 
   try {
     await setProductStatus(user, id, status);
@@ -117,14 +115,11 @@ export async function changeStatusAction(
     return { error: errorMessage(err) };
   }
 
-  refreshProductPages(id);
+  refreshProductPages();
   return {};
 }
 
-export async function deleteProductAction(
-  id: string,
-  redirectToList: boolean,
-): Promise<ActionResult> {
+export async function deleteProductAction(id: string): Promise<ActionResult> {
   const user = await requireUser();
 
   try {
@@ -134,6 +129,5 @@ export async function deleteProductAction(
   }
 
   refreshProductPages();
-  if (redirectToList) redirect("/products");
   return {};
 }

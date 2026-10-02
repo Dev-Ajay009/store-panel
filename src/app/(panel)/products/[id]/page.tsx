@@ -45,7 +45,11 @@ export default async function ProductPage({ params }: Props) {
               <p className="text-sm text-gray-500">{product.category.name}</p>
               <h1 className="text-2xl font-semibold">{product.name}</h1>
             </div>
-            <StatusBadge status={product.status} />
+            {can(user.role, "product:status") ? (
+              <StatusToggle id={product.id} status={product.status} />
+            ) : (
+              <StatusBadge status={product.status} />
+            )}
           </div>
 
           <p className="whitespace-pre-line text-gray-700">
@@ -85,9 +89,6 @@ export default async function ProductPage({ params }: Props) {
               >
                 Edit
               </Link>
-            )}
-            {can(user.role, "product:status") && (
-              <StatusToggle id={product.id} status={product.status} />
             )}
             {can(user.role, "product:delete") && (
               <DeleteButton

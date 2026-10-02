@@ -2,7 +2,6 @@ import Link from "next/link";
 import { DeleteButton } from "@/components/delete-button";
 import { Pagination } from "@/components/pagination";
 import { ProductImage } from "@/components/product-image";
-import { StatusBadge } from "@/components/status-badge";
 import { StatusToggle } from "@/components/status-toggle";
 import { formatDate, formatPrice } from "@/lib/format";
 import { hasActiveFilters, type ProductQuery } from "@/lib/product-query";
@@ -98,7 +97,7 @@ export async function ProductResults({ query, canDelete }: Props) {
                   {p.stock}
                 </td>
                 <td className="px-4 py-3">
-                  <StatusBadge status={p.status} />
+                  <StatusToggle id={p.id} status={p.status} compact />
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-gray-600">
                   {formatDate(p.createdAt)}
@@ -122,15 +121,12 @@ export async function ProductResults({ query, canDelete }: Props) {
                 className="size-16 shrink-0 rounded-md"
               />
               <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  <Link
-                    href={`/products/${p.id}`}
-                    className="truncate font-medium hover:underline"
-                  >
-                    {p.name}
-                  </Link>
-                  <StatusBadge status={p.status} />
-                </div>
+                <Link
+                  href={`/products/${p.id}`}
+                  className="block truncate font-medium hover:underline"
+                >
+                  {p.name}
+                </Link>
                 <p className="text-sm text-gray-600">{p.category.name}</p>
                 <dl className="mt-1 flex flex-wrap gap-x-4 text-sm">
                   <div className="flex gap-1">
@@ -152,7 +148,8 @@ export async function ProductResults({ query, canDelete }: Props) {
                 </dl>
               </div>
             </div>
-            <div className="mt-3 border-t border-gray-100 pt-3">
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3">
+              <StatusToggle id={p.id} status={p.status} compact />
               <RowActions product={p} canDelete={canDelete} />
             </div>
           </li>
@@ -180,12 +177,11 @@ function RowActions({
     <div className="flex flex-wrap items-start gap-2 md:justify-end">
       <Link
         href={`/products/${product.id}/edit`}
-        className="btn btn-secondary px-2.5 py-1 text-xs"
+        className="btn btn-secondary btn-sm"
         aria-label={`Edit ${product.name}`}
       >
         Edit
       </Link>
-      <StatusToggle id={product.id} status={product.status} compact />
       {canDelete && (
         <DeleteButton id={product.id} name={product.name} compact />
       )}

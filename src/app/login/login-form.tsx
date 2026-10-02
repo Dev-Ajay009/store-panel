@@ -1,25 +1,29 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useActionState } from "react";
+import { useToast } from "@/components/toast";
 import { login, type LoginState } from "./actions";
 
 export function LoginForm() {
-  const [state, formAction, pending] = useActionState<LoginState, FormData>(
-    login,
-    {},
-  );
+  const router = useRouter();
+  const showToast = useToast();
+
+  async function submit(prev: LoginState, formData: FormData) {
+    const result = await login(prev, formData);
+    if (result.success) {
+      showToast("Logged in successfully");
+      router.push("/dashboard");
+    } else if (result.error) {
+      showToast(result.error, "error");
+    }
+    return result;
+  }
+
+  const [state, formAction, pending] = useActionState(submit, {});
 
   return (
     <form action={formAction} className="space-y-4" noValidate>
-      {state.error && (
-        <p
-          role="alert"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-        >
-          {state.error}
-        </p>
-      )}
-
       <div>
         <label htmlFor="email" className="label">
           Email

@@ -22,6 +22,7 @@ export default async function NewProductPage() {
         action={createProductAction}
         categories={categories}
         submitLabel="Create product"
+        successMessage="Product created"
         cancelHref="/products"
       />
     </div>

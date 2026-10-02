@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NavLink } from "@/components/nav-link";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { requireUser } from "@/server/auth";
 import { logout } from "../login/actions";
 
@@ -40,6 +41,7 @@ export default async function PanelLayout({
                 {user.role === "ADMIN" ? "Admin" : "Manager"}
               </p>
             </div>
+            <ThemeToggle />
             <form action={logout}>
               <button type="submit" className="btn btn-secondary py-1.5">
                 Log out

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import type { ProductFormState } from "@/app/(panel)/products/actions";
 import type { ProductField } from "@/lib/validation";
+import { useToast } from "./toast";
 
 type Category = { id: number; name: string };
 
@@ -15,6 +17,7 @@ type Props = {
   categories: Category[];
   initialValues?: Partial<Record<ProductField, string>>;
   submitLabel: string;
+  successMessage: string;
   cancelHref: string;
 };
 
@@ -23,9 +26,24 @@ export function ProductForm({
   categories,
   initialValues = {},
   submitLabel,
+  successMessage,
   cancelHref,
 }: Props) {
-  const [state, formAction, pending] = useActionState(action, {});
+  const router = useRouter();
+  const showToast = useToast();
+
+  async function submit(prev: ProductFormState, formData: FormData) {
+    const result = await action(prev, formData);
+    if (result.productId) {
+      showToast(successMessage);
+      router.push(`/products/${result.productId}`);
+    } else if (result.message) {
+      showToast(result.message, "error");
+    }
+    return result;
+  }
+
+  const [state, formAction, pending] = useActionState(submit, {});
 
   const values = state.values ?? initialValues;
   const errorFor = (field: ProductField) => state.fieldErrors?.[field]?.[0];
@@ -53,15 +71,6 @@ export function ProductForm({
 
   return (
     <form action={formAction} noValidate className="card space-y-5 p-5 sm:p-6">
-      {state.message && (
-        <p
-          role="alert"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-        >
-          {state.message}
-        </p>
-      )}
-
       <div>
         <label htmlFor="name" className="label">
           Name

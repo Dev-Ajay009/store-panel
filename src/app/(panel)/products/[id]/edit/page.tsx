@@ -30,6 +30,7 @@ export default async function EditProductPage({
         action={updateProductAction.bind(null, product.id)}
         categories={categories}
         submitLabel="Save changes"
+        successMessage="Changes saved"
         cancelHref={`/products/${product.id}`}
         initialValues={{
           name: product.name,

@@ -1,8 +1,10 @@
 "use client";
 
 import type { ProductStatus } from "@prisma/client";
-import { useState, useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { changeStatusAction } from "@/app/(panel)/products/actions";
+import { StatusBadge } from "./status-badge";
+import { useToast } from "./toast";
 
 type Props = {
   id: string;
@@ -11,33 +13,31 @@ type Props = {
 };
 
 export function StatusToggle({ id, status, compact = false }: Props) {
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-  const next: ProductStatus = status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+  const showToast = useToast();
+  const [, startTransition] = useTransition();
+  const [currentStatus, setOptimisticStatus] = useOptimistic(status);
+  const nextStatus: ProductStatus =
+    currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
-  function onClick() {
-    setError(null);
+  function handleClick() {
     startTransition(async () => {
-      const result = await changeStatusAction(id, next);
-      if (result.error) setError(result.error);
+      setOptimisticStatus(nextStatus);
+      const result = await changeStatusAction(id, nextStatus);
+      if (result.error) showToast(result.error, "error");
+      else showToast("Status updated");
     });
   }
 
   return (
-    <span className="inline-flex flex-col items-start">
+    <div className="flex flex-wrap items-center gap-2">
+      <StatusBadge status={currentStatus} />
       <button
         type="button"
-        onClick={onClick}
-        disabled={pending}
-        className={`btn btn-secondary ${compact ? "px-2.5 py-1 text-xs" : ""}`}
+        onClick={handleClick}
+        className={`btn btn-secondary ${compact ? "btn-sm" : ""}`}
       >
-        {pending ? "Saving…" : next === "ACTIVE" ? "Activate" : "Deactivate"}
+        {nextStatus === "ACTIVE" ? "Activate" : "Deactivate"}
       </button>
-      {error && (
-        <span role="alert" className="mt-1 text-xs text-red-600">
-          {error}
-        </span>
-      )}
-    </span>
+    </div>
   );
 }

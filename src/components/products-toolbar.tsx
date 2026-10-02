@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import { productsHref, type ProductQuery } from "@/lib/product-query";
 
 type Props = {
@@ -22,15 +23,41 @@ const sortOptions = [
 
 export function ProductsToolbar({ query, categories }: Props) {
   const router = useRouter();
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  function updateFilters(changes: Partial<ProductQuery>) {
-    router.push(productsHref(query, { ...changes, page: 1 }));
+  const [search, setSearch] = useState(query.search);
+  const [sentSearch, setSentSearch] = useState(query.search);
+  const [urlSearch, setUrlSearch] = useState(query.search);
+
+  if (query.search !== urlSearch) {
+    setUrlSearch(query.search);
+    if (query.search !== sentSearch) {
+      setSearch(query.search);
+      setSentSearch(query.search);
+    }
+  }
+
+  function updateFilters(changes: Partial<ProductQuery>, replace = false) {
+    const href = productsHref(query, { ...changes, page: 1 });
+    if (replace) router.replace(href);
+    else router.push(href);
+  }
+
+  function sendSearch(value: string) {
+    clearTimeout(timer.current);
+    setSentSearch(value);
+    updateFilters({ search: value }, true);
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => sendSearch(value.trim()), 400);
   }
 
   function handleSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const search = new FormData(e.currentTarget).get("search");
-    updateFilters({ search: String(search ?? "").trim() });
+    sendSearch(search.trim());
   }
 
   function handleSortChange(value: string) {
@@ -51,20 +78,14 @@ export function ProductsToolbar({ query, categories }: Props) {
         <label htmlFor="search" className="label">
           Search
         </label>
-        <div className="flex gap-2">
-          <input
-            key={query.search}
-            id="search"
-            name="search"
-            type="search"
-            placeholder="Search by name…"
-            defaultValue={query.search}
-            className="input"
-          />
-          <button type="submit" className="btn btn-secondary">
-            Search
-          </button>
-        </div>
+        <input
+          id="search"
+          type="search"
+          placeholder="Search by name…"
+          value={search}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          className="input"
+        />
       </form>
 
       <div>

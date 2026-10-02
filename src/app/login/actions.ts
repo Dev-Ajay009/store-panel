@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { loginSchema } from "@/lib/validation";
 import { createSession, destroySession } from "@/server/auth";
 
-export type LoginState = { error?: string; email?: string };
+export type LoginState = { error?: string; email?: string; success?: boolean };
 
 export async function login(
   _prev: LoginState,
@@ -41,6 +41,7 @@ export async function login(
     }
 
     await createSession(user.id);
+    return { success: true };
   } catch (err) {
     console.error("Login failed", err);
     return {
@@ -48,8 +49,6 @@ export async function login(
       email,
     };
   }
-
-  redirect("/dashboard");
 }
 
 export async function logout() {
