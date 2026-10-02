@@ -1,0 +1,106 @@
+"use server";
+
+import type { ProductStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+import { productSchema, type ProductField } from "@/lib/validation";
+import { requireUser } from "@/server/auth";
+import { ForbiddenError, InvalidInputError, NotFoundError } from "@/server/errors";
+import { createProduct, deleteProduct, setProductStatus, updateProduct } from "@/server/products";
+
+export type ProductFormState = {
+  message?: string;
+  fieldErrors?: Partial<Record<ProductField, string[]>>;
+  values?: Partial<Record<ProductField, string>>;
+};
+
+export type ActionResult = { error?: string };
+
+function readForm(formData: FormData) {
+  const values: Partial<Record<ProductField, string>> = {};
+  for (const key of Object.keys(productSchema.shape) as ProductField[]) {
+    const value = formData.get(key);
+    if (typeof value === "string") values[key] = value;
+  }
+  return values;
+}
+
+function errorMessage(err: unknown) {
+  if (err instanceof ForbiddenError) return err.message;
+  if (err instanceof NotFoundError) return "This product no longer exists.";
+  console.error(err);
+  return "Something went wrong. Please try again.";
+}
+
+function refreshProductPages(id?: string) {
+  revalidatePath("/products");
+  revalidatePath("/dashboard");
+  if (id) revalidatePath(`/products/${id}`);
+}
+
+async function saveProduct(formData: FormData, id?: string): Promise<ProductFormState> {
+  const user = await requireUser();
+  const values = readForm(formData);
+  const parsed = productSchema.safeParse(values);
+
+  if (!parsed.success) {
+    return {
+      message: "Please fix the highlighted fields.",
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+      values,
+    };
+  }
+
+  let productId: string;
+  try {
+    const product = id
+      ? await updateProduct(user, id, parsed.data)
+      : await createProduct(user, parsed.data);
+    productId = product.id;
+  } catch (err) {
+    if (err instanceof InvalidInputError) {
+      return { message: "Please fix the highlighted fields.", fieldErrors: err.fieldErrors, values };
+    }
+    return { message: errorMessage(err), values };
+  }
+
+  refreshProductPages(productId);
+  redirect(`/products/${productId}`);
+}
+
+export async function createProductAction(_prev: ProductFormState, formData: FormData) {
+  return saveProduct(formData);
+}
+
+export async function updateProductAction(id: string, _prev: ProductFormState, formData: FormData) {
+  return saveProduct(formData, id);
+}
+
+export async function changeStatusAction(id: string, status: ProductStatus): Promise<ActionResult> {
+  const user = await requireUser();
+  if (status !== "ACTIVE" && status !== "INACTIVE") return { error: "Invalid status." };
+
+  try {
+    await setProductStatus(user, id, status);
+  } catch (err) {
+    return { error: errorMessage(err) };
+  }
+
+  refreshProductPages(id);
+  return {};
+}
+
+export async function deleteProductAction(id: string, redirectToList: boolean): Promise<ActionResult> {
+  const user = await requireUser();
+
+  try {
+    await deleteProduct(user, id);
+  } catch (err) {
+    return { error: errorMessage(err) };
+  }
+
+  refreshProductPages();
+  if (redirectToList) redirect("/products");
+  return {};
+}
