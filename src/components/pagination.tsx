@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { PAGE_SIZE, productsHref, type ProductQuery } from "@/lib/product-query";
+import {
+  PAGE_SIZE,
+  productsHref,
+  type ProductQuery,
+} from "@/lib/product-query";
 
 type Props = {
   query: ProductQuery;
@@ -8,7 +12,6 @@ type Props = {
   total: number;
 };
 
-// Shows at most 5 page numbers around the current page.
 function visiblePages(page: number, pageCount: number) {
   const start = Math.max(1, Math.min(page - 2, pageCount - 4));
   const end = Math.min(pageCount, start + 4);
@@ -19,12 +22,17 @@ export function Pagination({ query, page, pageCount, total }: Props) {
   const from = (page - 1) * PAGE_SIZE + 1;
   const to = Math.min(page * PAGE_SIZE, total);
   const linkClass = "btn btn-secondary min-w-9 px-2.5 py-1.5";
-  const disabledClass = "btn btn-secondary min-w-9 px-2.5 py-1.5 pointer-events-none opacity-50";
+  const disabledClass =
+    "btn btn-secondary min-w-9 px-2.5 py-1.5 pointer-events-none opacity-50";
 
   return (
-    <nav aria-label="Pagination" className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+    <nav
+      aria-label="Pagination"
+      className="flex flex-col items-center justify-between gap-3 sm:flex-row"
+    >
       <p className="text-sm text-gray-600">
-        Showing <span className="font-medium">{from}</span>–<span className="font-medium">{to}</span> of{" "}
+        Showing <span className="font-medium">{from}</span>–
+        <span className="font-medium">{to}</span> of{" "}
         <span className="font-medium">{total}</span>
       </p>
 
@@ -32,7 +40,10 @@ export function Pagination({ query, page, pageCount, total }: Props) {
         <ul className="flex items-center gap-1">
           <li>
             {page > 1 ? (
-              <Link href={productsHref(query, { page: page - 1 })} className={linkClass}>
+              <Link
+                href={productsHref(query, { page: page - 1 })}
+                className={linkClass}
+              >
                 Previous
               </Link>
             ) : (
@@ -47,7 +58,11 @@ export function Pagination({ query, page, pageCount, total }: Props) {
                 href={productsHref(query, { page: p })}
                 aria-current={p === page ? "page" : undefined}
                 aria-label={`Page ${p}`}
-                className={p === page ? "btn btn-primary min-w-9 px-2.5 py-1.5" : linkClass}
+                className={
+                  p === page
+                    ? "btn btn-primary min-w-9 px-2.5 py-1.5"
+                    : linkClass
+                }
               >
                 {p}
               </Link>
@@ -58,7 +73,10 @@ export function Pagination({ query, page, pageCount, total }: Props) {
           </li>
           <li>
             {page < pageCount ? (
-              <Link href={productsHref(query, { page: page + 1 })} className={linkClass}>
+              <Link
+                href={productsHref(query, { page: page + 1 })}
+                className={linkClass}
+              >
                 Next
               </Link>
             ) : (

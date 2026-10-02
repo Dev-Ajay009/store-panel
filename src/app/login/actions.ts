@@ -8,11 +8,13 @@ import { createSession, destroySession } from "@/server/auth";
 
 export type LoginState = { error?: string; email?: string };
 
-// Compared against when the email doesn't exist, so the response time
-// doesn't reveal which emails are registered.
-const DUMMY_HASH = "$2b$10$Ju4xJcwijOG8NUY/GGeciOQ/FD7rUmkdGUlW580vQKZLm/NZbBsjO";
+const DUMMY_HASH =
+  "$2b$10$Ju4xJcwijOG8NUY/GGeciOQ/FD7rUmkdGUlW580vQKZLm/NZbBsjO";
 
-export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
+export async function login(
+  _prev: LoginState,
+  formData: FormData,
+): Promise<LoginState> {
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -24,8 +26,13 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   }
 
   try {
-    const user = await db.user.findUnique({ where: { email: parsed.data.email.toLowerCase() } });
-    const valid = await bcrypt.compare(parsed.data.password, user?.passwordHash ?? DUMMY_HASH);
+    const user = await db.user.findUnique({
+      where: { email: parsed.data.email.toLowerCase() },
+    });
+    const valid = await bcrypt.compare(
+      parsed.data.password,
+      user?.passwordHash ?? DUMMY_HASH,
+    );
 
     if (!user || !valid) {
       return { error: "Invalid email or password.", email };
@@ -34,7 +41,10 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     await createSession(user.id);
   } catch (err) {
     console.error("Login failed", err);
-    return { error: "We couldn't sign you in right now. Please try again.", email };
+    return {
+      error: "We couldn't sign you in right now. Please try again.",
+      email,
+    };
   }
 
   redirect("/dashboard");

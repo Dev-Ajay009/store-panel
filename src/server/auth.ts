@@ -3,7 +3,12 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { SESSION_COOKIE, SESSION_TTL_SECONDS, signSession, verifySession } from "@/lib/jwt";
+import {
+  SESSION_COOKIE,
+  SESSION_TTL_SECONDS,
+  signSession,
+  verifySession,
+} from "@/lib/jwt";
 
 export async function createSession(userId: string) {
   const token = await signSession({ userId });
@@ -21,8 +26,6 @@ export async function destroySession() {
   (await cookies()).delete(SESSION_COOKIE);
 }
 
-// The role is always read from the database, so a role change
-// takes effect without waiting for the cookie to expire.
 export const getCurrentUser = cache(async () => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const session = await verifySession(token);
@@ -40,4 +43,6 @@ export async function requireUser() {
   return user;
 }
 
-export type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
+export type CurrentUser = NonNullable<
+  Awaited<ReturnType<typeof getCurrentUser>>
+>;

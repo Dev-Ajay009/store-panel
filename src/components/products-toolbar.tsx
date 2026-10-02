@@ -2,7 +2,13 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { hasActiveFilters, productsHref, type ProductQuery, type SortField, type SortOrder } from "@/lib/product-query";
+import {
+  hasActiveFilters,
+  productsHref,
+  type ProductQuery,
+  type SortField,
+  type SortOrder,
+} from "@/lib/product-query";
 
 type Props = {
   query: ProductQuery;
@@ -29,9 +35,6 @@ export function ProductsToolbar({ query, categories }: Props) {
   const [lastPushed, setLastPushed] = useState(query.search);
   const [prevQuerySearch, setPrevQuerySearch] = useState(query.search);
 
-  // Keep the input in sync when the URL changes from outside (back button,
-  // "clear filters" link), but not when the change is our own debounced update
-  // arriving while the user is still typing.
   if (query.search !== prevQuerySearch) {
     setPrevQuerySearch(query.search);
     if (query.search !== lastPushed) setSearch(query.search);
@@ -61,7 +64,11 @@ export function ProductsToolbar({ query, categories }: Props) {
 
   return (
     <div className="card grid grid-cols-2 gap-3 p-3 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:items-end">
-      <form role="search" onSubmit={(e) => e.preventDefault()} className="col-span-2 lg:col-span-1">
+      <form
+        role="search"
+        onSubmit={(e) => e.preventDefault()}
+        className="col-span-2 lg:col-span-1"
+      >
         <label htmlFor="search" className="label">
           Search
         </label>
@@ -82,7 +89,9 @@ export function ProductsToolbar({ query, categories }: Props) {
         <select
           id="status-filter"
           value={query.status}
-          onChange={(e) => navigate({ status: e.target.value as ProductQuery["status"] })}
+          onChange={(e) =>
+            navigate({ status: e.target.value as ProductQuery["status"] })
+          }
           className="input"
         >
           <option value="all">All</option>
@@ -118,7 +127,10 @@ export function ProductsToolbar({ query, categories }: Props) {
           id="sort"
           value={`${query.sort}-${query.order}`}
           onChange={(e) => {
-            const [sort, order] = e.target.value.split("-") as [SortField, SortOrder];
+            const [sort, order] = e.target.value.split("-") as [
+              SortField,
+              SortOrder,
+            ];
             navigate({ sort, order });
           }}
           className="input"

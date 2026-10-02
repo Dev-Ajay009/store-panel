@@ -1,7 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// Runs against the seeded dev database (npm run db:seed).
-
 async function login(page: Page, email: string, password: string) {
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
@@ -28,37 +26,46 @@ test("admin can create, find and delete a product", async ({ page }) => {
 
   await login(page, "admin@example.com", "Admin123!");
 
-  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Products" }).click();
+  await page
+    .getByRole("navigation", { name: "Main" })
+    .getByRole("link", { name: "Products" })
+    .click();
   await expect(page.getByRole("heading", { name: "Products" })).toBeVisible();
 
   await page.getByRole("link", { name: "New product" }).click();
 
-  // Submitting an empty form shows the server-side validation messages
   await page.getByRole("button", { name: "Create product" }).click();
   await expect(page.getByText("Name is required")).toBeVisible();
 
   await page.getByLabel("Name").fill(name);
-  await page.getByLabel("Description").fill("Layers of pasta, beef ragù and béchamel");
+  await page
+    .getByLabel("Description")
+    .fill("Layers of pasta, beef ragù and béchamel");
   await page.getByLabel("Price (USD)").fill("16.40");
   await page.getByLabel("Stock").fill("12");
   await page.getByLabel("Category").selectOption({ label: "Food" });
   await page.getByRole("button", { name: "Create product" }).click();
 
-  // Lands on the details page of the new product
   await expect(page.getByRole("heading", { name })).toBeVisible();
   await expect(page.getByText("$16.40")).toBeVisible();
 
-  // It shows up when searching on the products page
   await page.goto("/products");
   await page.getByLabel("Search").fill(name);
   await expect(page).toHaveURL(/search=E2E/);
-  await expect(page.getByRole("table").getByRole("link", { name, exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("table").getByRole("link", { name, exact: true }),
+  ).toBeVisible();
 
-  // Clean up through the UI, which also covers the delete confirmation
-  await page.getByRole("table").getByRole("link", { name, exact: true }).click();
+  await page
+    .getByRole("table")
+    .getByRole("link", { name, exact: true })
+    .click();
   await expect(page.getByRole("heading", { name })).toBeVisible();
   await page.getByRole("button", { name: "Delete" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Delete" })
+    .click();
   await expect(page).toHaveURL(/\/products$/);
   await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
 });
@@ -66,6 +73,8 @@ test("admin can create, find and delete a product", async ({ page }) => {
 test("manager does not see the delete action", async ({ page }) => {
   await login(page, "manager@example.com", "Manager123!");
   await page.goto("/products");
-  await expect(page.getByRole("link", { name: /^Edit / }).first()).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /^Edit / }).first(),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "Delete" })).toHaveCount(0);
 });

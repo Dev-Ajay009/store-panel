@@ -9,8 +9,6 @@ function isHttpUrl(value: string) {
   }
 }
 
-// Form fields always arrive as strings, so numbers are parsed here
-// instead of relying on z.coerce (which turns "" into 0).
 const numberField = (label: string) =>
   z
     .string({ error: `${label} is required` })
@@ -48,7 +46,9 @@ export const productSchema = z.object({
     .optional()
     .transform((v) => v || null)
     .refine((v) => v === null || isHttpUrl(v), "Image URL must be a valid URL"),
-  status: z.enum(["ACTIVE", "INACTIVE"], { error: "Choose a valid status" }).default("ACTIVE"),
+  status: z
+    .enum(["ACTIVE", "INACTIVE"], { error: "Choose a valid status" })
+    .default("ACTIVE"),
 });
 
 export type ProductInput = z.output<typeof productSchema>;

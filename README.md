@@ -26,7 +26,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 | Name           | Description                                                                  |
 | -------------- | ---------------------------------------------------------------------------- |
-| `DATABASE_URL` | SQLite connection string. Default `file:./dev.db` (relative to `prisma/`).  |
+| `DATABASE_URL` | SQLite connection string. Default `file:./dev.db` (relative to `prisma/`).   |
 | `AUTH_SECRET`  | Secret used to sign session cookies. Server-only, never sent to the browser. |
 
 ### Database
@@ -140,7 +140,3 @@ tests/
 - User management UI (users come from the seed)
 - Rate limiting on the login endpoint
 - Docker setup
-
-## Time spent
-
-About _X_ hours.

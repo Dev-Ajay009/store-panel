@@ -8,17 +8,25 @@ import type { ProductField } from "@/lib/validation";
 type Category = { id: number; name: string };
 
 type Props = {
-  action: (state: ProductFormState, formData: FormData) => Promise<ProductFormState>;
+  action: (
+    state: ProductFormState,
+    formData: FormData,
+  ) => Promise<ProductFormState>;
   categories: Category[];
   initialValues?: Partial<Record<ProductField, string>>;
   submitLabel: string;
   cancelHref: string;
 };
 
-export function ProductForm({ action, categories, initialValues = {}, submitLabel, cancelHref }: Props) {
+export function ProductForm({
+  action,
+  categories,
+  initialValues = {},
+  submitLabel,
+  cancelHref,
+}: Props) {
   const [state, formAction, pending] = useActionState(action, {});
 
-  // After a failed submit, show what the user typed rather than the original values.
   const values = state.values ?? initialValues;
   const errorFor = (field: ProductField) => state.fieldErrors?.[field]?.[0];
 
@@ -46,7 +54,10 @@ export function ProductForm({ action, categories, initialValues = {}, submitLabe
   return (
     <form action={formAction} noValidate className="card space-y-5 p-5 sm:p-6">
       {state.message && (
-        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
           {state.message}
         </p>
       )}
@@ -72,14 +83,28 @@ export function ProductForm({ action, categories, initialValues = {}, submitLabe
           <label htmlFor="price" className="label">
             Price (USD)
           </label>
-          <input type="number" inputMode="decimal" step="0.01" min="0" className="input" {...fieldProps("price")} />
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            min="0"
+            className="input"
+            {...fieldProps("price")}
+          />
           {fieldError("price")}
         </div>
         <div>
           <label htmlFor="stock" className="label">
             Stock
           </label>
-          <input type="number" inputMode="numeric" step="1" min="0" className="input" {...fieldProps("stock")} />
+          <input
+            type="number"
+            inputMode="numeric"
+            step="1"
+            min="0"
+            className="input"
+            {...fieldProps("stock")}
+          />
           {fieldError("stock")}
         </div>
       </div>
@@ -103,7 +128,11 @@ export function ProductForm({ action, categories, initialValues = {}, submitLabe
           <label htmlFor="status" className="label">
             Status
           </label>
-          <select className="input" {...fieldProps("status")} defaultValue={values.status ?? "ACTIVE"}>
+          <select
+            className="input"
+            {...fieldProps("status")}
+            defaultValue={values.status ?? "ACTIVE"}
+          >
             <option value="ACTIVE">Active</option>
             <option value="INACTIVE">Inactive</option>
           </select>
@@ -113,9 +142,15 @@ export function ProductForm({ action, categories, initialValues = {}, submitLabe
 
       <div>
         <label htmlFor="imageUrl" className="label">
-          Image URL <span className="font-normal text-gray-500">(optional)</span>
+          Image URL{" "}
+          <span className="font-normal text-gray-500">(optional)</span>
         </label>
-        <input type="url" placeholder="https://…" className="input" {...fieldProps("imageUrl")} />
+        <input
+          type="url"
+          placeholder="https://…"
+          className="input"
+          {...fieldProps("imageUrl")}
+        />
         {fieldError("imageUrl")}
       </div>
 
