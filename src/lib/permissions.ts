@@ -1,4 +1,4 @@
-import type { Role } from "@prisma/client";
+export type Role = "ADMIN" | "MANAGER";
 
 export type Action =
   | "product:view"
@@ -8,7 +8,13 @@ export type Action =
   | "product:delete";
 
 const rolePermissions: Record<Role, Action[]> = {
-  ADMIN: ["product:view", "product:create", "product:edit", "product:status", "product:delete"],
+  ADMIN: [
+    "product:view",
+    "product:create",
+    "product:edit",
+    "product:status",
+    "product:delete",
+  ],
   MANAGER: ["product:view", "product:create", "product:edit", "product:status"],
 };
 

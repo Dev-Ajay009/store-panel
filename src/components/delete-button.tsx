@@ -10,7 +10,12 @@ type Props = {
   compact?: boolean;
 };
 
-export function DeleteButton({ id, name, redirectToList = false, compact = false }: Props) {
+export function DeleteButton({
+  id,
+  name,
+  redirectToList = false,
+  compact = false,
+}: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -54,8 +59,8 @@ export function DeleteButton({ id, name, redirectToList = false, compact = false
             Delete product?
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            <strong className="font-medium text-gray-900">{name}</strong> will be removed permanently. This
-            can&apos;t be undone.
+            <strong className="font-medium text-gray-900">{name}</strong> will
+            be removed permanently. This can&apos;t be undone.
           </p>
           {error && (
             <p role="alert" className="mt-3 text-sm text-red-600">
@@ -71,7 +76,12 @@ export function DeleteButton({ id, name, redirectToList = false, compact = false
             >
               Cancel
             </button>
-            <button type="button" className="btn btn-danger" onClick={confirm} disabled={pending}>
+            <button
+              type="button"
+              className="btn btn-danger"
+              onClick={confirm}
+              disabled={pending}
+            >
               {pending ? "Deleting…" : "Delete"}
             </button>
           </div>

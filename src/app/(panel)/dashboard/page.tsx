@@ -12,52 +12,39 @@ export default async function DashboardPage() {
   const [user, data] = await Promise.all([requireUser(), getDashboardData()]);
 
   const stats = [
-    { label: "Total products", value: data.total, href: "/products" },
-    { label: "Active", value: data.active, href: "/products?status=active" },
-    { label: "Inactive", value: data.inactive, href: "/products?status=inactive" },
-    { label: "Total stock", value: data.totalStock.toLocaleString("en-US") },
+    { label: "Total products", value: data.total },
+    { label: "Active", value: data.active },
+    { label: "Inactive", value: data.inactive },
+    { label: "Total stock", value: data.totalStock },
   ];
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600">Welcome back, {user.name.split(" ")[0]}.</p>
+        <p className="mt-1 text-sm text-gray-600">
+          Welcome back, {user.name.split(" ")[0]}.
+        </p>
       </div>
 
-      <section aria-labelledby="overview-heading">
-        <h2 id="overview-heading" className="sr-only">
-          Overview
-        </h2>
-        <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {stats.map((s) => {
-            const body = (
-              <>
-                <p className="text-sm text-gray-500">{s.label}</p>
-                <p className="mt-1 text-2xl font-semibold tabular-nums">{s.value}</p>
-              </>
-            );
-            return (
-              <li key={s.label}>
-                {s.href ? (
-                  <Link href={s.href} className="card block p-4 hover:border-gray-300">
-                    {body}
-                  </Link>
-                ) : (
-                  <div className="card p-4">{body}</div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {stats.map((s) => (
+          <li key={s.label} className="card p-4">
+            <p className="text-sm text-gray-500">{s.label}</p>
+            <p className="mt-1 text-2xl font-semibold">{s.value}</p>
+          </li>
+        ))}
+      </ul>
 
       <section aria-labelledby="recent-heading" className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 id="recent-heading" className="text-lg font-semibold">
             Recently added
           </h2>
-          <Link href="/products" className="text-sm font-medium text-gray-600 hover:text-gray-900 hover:underline">
+          <Link
+            href="/products"
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 hover:underline"
+          >
             View all
           </Link>
         </div>
@@ -73,8 +60,15 @@ export default async function DashboardPage() {
           <ul className="card divide-y divide-gray-100">
             {data.recent.map((p) => (
               <li key={p.id}>
-                <Link href={`/products/${p.id}`} className="flex items-center gap-3 p-3 hover:bg-gray-50 sm:p-4">
-                  <ProductImage src={p.imageUrl} alt={p.name} className="size-10 shrink-0 rounded-md" />
+                <Link
+                  href={`/products/${p.id}`}
+                  className="flex items-center gap-3 p-3 hover:bg-gray-50 sm:p-4"
+                >
+                  <ProductImage
+                    src={p.imageUrl}
+                    alt={p.name}
+                    className="size-10 shrink-0 rounded-md"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.name}</p>
                     <p className="text-sm text-gray-500">
@@ -82,7 +76,9 @@ export default async function DashboardPage() {
                     </p>
                   </div>
                   <div className="hidden text-right text-sm sm:block">
-                    <p className="font-medium tabular-nums">{formatPrice(p.priceCents)}</p>
+                    <p className="font-medium tabular-nums">
+                      {formatPrice(p.priceCents)}
+                    </p>
                     <p className="text-gray-500">{p.stock} in stock</p>
                   </div>
                   <StatusBadge status={p.status} />

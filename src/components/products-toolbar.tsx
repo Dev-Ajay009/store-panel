@@ -1,21 +1,15 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-import {
-  hasActiveFilters,
-  productsHref,
-  type ProductQuery,
-  type SortField,
-  type SortOrder,
-} from "@/lib/product-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { productsHref, type ProductQuery } from "@/lib/product-query";
 
 type Props = {
   query: ProductQuery;
   categories: { slug: string; name: string }[];
 };
 
-const sortOptions: { value: `${SortField}-${SortOrder}`; label: string }[] = [
+const sortOptions = [
   { value: "createdAt-desc", label: "Newest first" },
   { value: "createdAt-asc", label: "Oldest first" },
   { value: "name-asc", label: "Name (A–Z)" },
@@ -28,58 +22,49 @@ const sortOptions: { value: `${SortField}-${SortOrder}`; label: string }[] = [
 
 export function ProductsToolbar({ query, categories }: Props) {
   const router = useRouter();
-  const pathname = usePathname();
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const [search, setSearch] = useState(query.search);
-  const [lastPushed, setLastPushed] = useState(query.search);
-  const [prevQuerySearch, setPrevQuerySearch] = useState(query.search);
-
-  if (query.search !== prevQuerySearch) {
-    setPrevQuerySearch(query.search);
-    if (query.search !== lastPushed) setSearch(query.search);
+  function updateFilters(changes: Partial<ProductQuery>) {
+    router.push(productsHref(query, { ...changes, page: 1 }));
   }
 
-  function navigate(changes: Partial<ProductQuery>, replace = false) {
-    const href = productsHref(query, { ...changes, page: 1 });
-    if (replace) router.replace(href, { scroll: false });
-    else router.push(href, { scroll: false });
+  function handleSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const search = new FormData(e.currentTarget).get("search");
+    updateFilters({ search: String(search ?? "").trim() });
   }
 
-  function onSearchChange(value: string) {
-    setSearch(value);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      setLastPushed(value.trim());
-      navigate({ search: value.trim() }, true);
-    }, 350);
-  }
-
-  function clearAll() {
-    clearTimeout(timer.current);
-    setSearch("");
-    setLastPushed("");
-    router.push(pathname);
+  function handleSortChange(value: string) {
+    const [sort, order] = value.split("-");
+    updateFilters({
+      sort: sort as ProductQuery["sort"],
+      order: order as ProductQuery["order"],
+    });
   }
 
   return (
     <div className="card grid grid-cols-2 gap-3 p-3 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:items-end">
       <form
         role="search"
-        onSubmit={(e) => e.preventDefault()}
+        onSubmit={handleSearch}
         className="col-span-2 lg:col-span-1"
       >
         <label htmlFor="search" className="label">
           Search
         </label>
-        <input
-          id="search"
-          type="search"
-          placeholder="Search by name…"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="input"
-        />
+        <div className="flex gap-2">
+          <input
+            key={query.search}
+            id="search"
+            name="search"
+            type="search"
+            placeholder="Search by name…"
+            defaultValue={query.search}
+            className="input"
+          />
+          <button type="submit" className="btn btn-secondary">
+            Search
+          </button>
+        </div>
       </form>
 
       <div>
@@ -90,7 +75,7 @@ export function ProductsToolbar({ query, categories }: Props) {
           id="status-filter"
           value={query.status}
           onChange={(e) =>
-            navigate({ status: e.target.value as ProductQuery["status"] })
+            updateFilters({ status: e.target.value as ProductQuery["status"] })
           }
           className="input"
         >
@@ -107,7 +92,7 @@ export function ProductsToolbar({ query, categories }: Props) {
         <select
           id="category-filter"
           value={query.category}
-          onChange={(e) => navigate({ category: e.target.value })}
+          onChange={(e) => updateFilters({ category: e.target.value })}
           className="input"
         >
           <option value="">All categories</option>
@@ -126,13 +111,7 @@ export function ProductsToolbar({ query, categories }: Props) {
         <select
           id="sort"
           value={`${query.sort}-${query.order}`}
-          onChange={(e) => {
-            const [sort, order] = e.target.value.split("-") as [
-              SortField,
-              SortOrder,
-            ];
-            navigate({ sort, order });
-          }}
+          onChange={(e) => handleSortChange(e.target.value)}
           className="input"
         >
           {sortOptions.map((o) => (
@@ -143,14 +122,9 @@ export function ProductsToolbar({ query, categories }: Props) {
         </select>
       </div>
 
-      <button
-        type="button"
-        onClick={clearAll}
-        disabled={!hasActiveFilters(query) && search === ""}
-        className="btn btn-secondary self-end"
-      >
+      <Link href="/products" className="btn btn-secondary self-end">
         Reset
-      </button>
+      </Link>
     </div>
   );
 }

@@ -55,6 +55,10 @@ export type ProductInput = z.output<typeof productSchema>;
 export type ProductField = keyof z.input<typeof productSchema>;
 
 export const loginSchema = z.object({
-  email: z.email("Enter a valid email address"),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email("Enter a valid email address")),
   password: z.string().min(1, "Password is required"),
 });

@@ -9,9 +9,9 @@ type Props = {
 };
 
 export function ProductImage({ src, alt, className = "" }: Props) {
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
 
-  if (!src || failedSrc === src) {
+  if (!src || hasError) {
     return (
       <div
         role="img"
@@ -29,7 +29,7 @@ export function ProductImage({ src, alt, className = "" }: Props) {
       src={src}
       alt={alt}
       loading="lazy"
-      onError={() => setFailedSrc(src)}
+      onError={() => setHasError(true)}
       className={`object-cover ${className}`}
     />
   );

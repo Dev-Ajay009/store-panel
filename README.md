@@ -1,143 +1,126 @@
 # Store Panel
 
-Admin panel for a small online store. Staff log in, get a quick overview on the dashboard and manage the product catalog.
+Admin panel for an online store, built with Next.js.
 
-Built with **Next.js 16** (App Router), **TypeScript**, **Tailwind CSS**, **Prisma** and **SQLite**.
+## Tech
+
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS
+- Prisma + SQLite
+- Zod for validation
+- Vitest and Playwright for tests
 
 ## Features
 
-- Login with email and password, with protected routes
-- Two roles: **Admin** can do everything, **Manager** can do everything except delete products (checked on the server too)
-- Dashboard with total, active and inactive products, total stock, and recently added products
-- Product list with search, status and category filters, sorting and pagination, all kept in the URL
-- Product details, create, edit, delete (with confirmation) and an active/inactive toggle
-- Server-side validation with errors shown under each field
-- Loading skeletons, empty states, a not-found page and friendly error pages
-- Works on desktop, tablet and mobile (cards instead of a table on small screens)
-- Unit, integration and end-to-end tests
+- Login with email and password
+- Two roles: Admin and Manager
+- Manager can't delete products
+- Dashboard with product counts and recent products
+- Product list with search, filters, sorting and pagination
+- Create, edit, delete and activate/deactivate products
+- Form validation on the server
+- Works on mobile
 
-## Tech stack
+## Requirements
 
-| Area      | Tool                                     |
-| --------- | ---------------------------------------- |
-| Framework | Next.js 16 (App Router, Server Actions)  |
-| Language  | TypeScript                               |
-| Styling   | Tailwind CSS 4                           |
-| Database  | SQLite via Prisma                        |
-| Auth      | bcrypt + signed JWT cookie (`jose`)      |
-| Forms     | Zod validation, `useActionState`         |
-| Tests     | Vitest, Playwright                       |
+- Node.js 20.9 or newer
+- npm
 
-## Getting started
+## Setup
 
-You need **Node.js 20.9+** (I used Node 22) and npm. There's no database server to install, because SQLite keeps everything in `prisma/dev.db`.
+1. Install packages
 
 ```bash
-git clone https://github.com/Dev-Ajay009/store-panel.git
-cd store-panel
 npm install
+```
+
+2. Create the `.env` file
+
+```bash
 cp .env.example .env
 ```
 
-Open `.env` and set `AUTH_SECRET` to a random string. You can generate one with:
+3. Set `AUTH_SECRET` in `.env` to any long random text
 
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-```
-
-Then create the database, load the sample data and start the app:
+4. Create the database
 
 ```bash
 npm run db:migrate
+```
+
+5. Add sample data
+
+```bash
 npm run db:seed
+```
+
+6. Start the app
+
+```bash
 npm run dev
 ```
 
-Open http://localhost:3000.
+7. Open http://localhost:3000
 
-### Environment variables
+## Environment variables
 
-| Name           | Description                                                       |
-| -------------- | ----------------------------------------------------------------- |
-| `DATABASE_URL` | SQLite file, `file:./dev.db` by default (relative to `prisma/`)   |
-| `AUTH_SECRET`  | Secret for signing the session cookie. Only used on the server.  |
+- `DATABASE_URL` - SQLite database file
+- `AUTH_SECRET` - secret for the login cookie
 
 ## Test accounts
 
-| Role    | Email               | Password      |
-| ------- | ------------------- | ------------- |
-| Admin   | admin@example.com   | `Admin123!`   |
-| Manager | manager@example.com | `Manager123!` |
+- Admin: `admin@example.com` / `Admin123!`
+- Manager: `manager@example.com` / `Manager123!`
 
-## Scripts
+## Commands
 
-| Command              | What it does                                         |
-| -------------------- | ---------------------------------------------------- |
-| `npm run dev`        | Start the dev server                                 |
-| `npm run build`      | Production build (`npm start` to run it)             |
-| `npm run db:migrate` | Create the database and apply migrations             |
-| `npm run db:seed`    | Load 2 users, 4 categories and 24 products           |
-| `npm run db:reset`   | Drop everything, re-run migrations and the seed      |
-| `npm test`           | Unit + integration tests (Vitest)                    |
-| `npm run test:e2e`   | End-to-end tests (Playwright)                        |
-| `npm run lint`       | ESLint                                               |
-| `npm run typecheck`  | TypeScript check                                     |
-
-The seed can be run again any time. It clears the products and adds them back.
+- `npm run dev` - start the dev server
+- `npm run build` - production build
+- `npm start` - run the production build
+- `npm run db:migrate` - create or update the database
+- `npm run db:seed` - add sample data
+- `npm run db:reset` - clear the database and seed again
+- `npm test` - unit and integration tests
+- `npm run test:e2e` - end-to-end tests
+- `npm run lint` - check code style
+- `npm run typecheck` - check types
 
 ## Tests
 
-- `tests/unit`: validation rules, permissions, and reading filters from the URL
-- `tests/integration`: the product service against a separate SQLite database (`prisma/test.db`, recreated on every run). Covers create, update, delete, status change, filters, sorting and pagination, plus a check that a manager can't delete even by calling the server code directly.
-- `tests/e2e`: log in, open Products, create a product (including validation errors), find it with search, then delete it. Another test checks that a manager gets no delete button.
+- Unit tests: validation, permissions, URL filters
+- Integration tests: product create, update, delete, filters and pagination
+- E2E test: login, create a product, search it, delete it
+- Before E2E tests, run `npm run db:seed` and `npx playwright install chromium`
 
-The E2E tests use the dev database, so run `npm run db:seed` first. Playwright needs a browser the first time:
+## Folder structure
 
-```bash
-npx playwright install chromium
-```
-
-If Chrome is already installed you can skip that and run `PW_CHANNEL=chrome npm run test:e2e`.
-
-## Project structure
-
-```
-prisma/          schema, migrations, seed
-src/
-  proxy.ts       sends logged-out users to /login
-  app/
-    login/       login page and login/logout actions
-    (panel)/     pages that need a login (dashboard, products)
-  components/    form, filter bar, pagination, dialogs...
-  lib/           validation, permissions, helpers
-  server/        auth and product service (everything that touches the db)
-tests/           unit, integration, e2e
-```
+- `prisma/` - database schema, migrations, seed
+- `src/app/login/` - login page
+- `src/app/(panel)/` - pages that need login (dashboard, products)
+- `src/components/` - reusable UI parts
+- `src/lib/` - validation, permissions, helpers
+- `src/server/` - login check and database functions
+- `src/proxy.ts` - redirects to login if not logged in
+- `tests/` - all tests
 
 ## Technical decisions
 
-**Server Components first.** Pages read from the database directly through `src/server/products.ts`. I didn't add an API layer or a client data library because nothing here needed one. Client Components are only used where there's interaction: the forms, the filter bar, the status button and the delete dialog.
+- Pages are Server Components, so they read data directly from the database
+- Client Components only where needed (forms, filters, buttons)
+- Create, edit, delete use Server Actions
+- After a change, `revalidatePath` refreshes the pages
+- Search, filters, sort and page are saved in the URL
+- Passwords are hashed with bcrypt
+- Login is saved in an httpOnly cookie with a signed JWT
+- Every page and action checks the logged in user on the server
+- Role permissions are checked on the server before every change
+- SQLite so the project runs without installing a database
+- Price is saved in cents to avoid decimal problems
 
-**Server Actions for changes.** Create, edit, delete and status change are Server Actions. Each one calls `revalidatePath` afterwards, so the list, details page and dashboard update without a refresh. The form uses `useActionState`, so server errors appear under the right field and the inputs keep what you typed.
+## Could be added later
 
-**The URL holds the list state.** Search, filters, sort and page live in the query string, for example `/products?search=pizza&status=active&category=food&page=2`. Refresh, the back button and shared links all work. Bad values in the URL fall back to the defaults. Search waits briefly after you stop typing.
-
-**Auth.** Passwords are hashed with bcrypt. Logging in sets an httpOnly cookie with a signed JWT that only holds the user id and expires after 8 hours. `proxy.ts` just checks the cookie and redirects. The real check is `requireUser()`, which runs in the layout, on every page and in every Server Action, and loads the user and role from the database, so a role change applies right away. The login error is the same for a wrong email and a wrong password.
-
-**Permissions in one file.** `lib/permissions.ts` maps roles to actions. The UI uses it to hide buttons, and the product service checks it again before every write. Because of that, a manager can't delete a product even by calling the action by hand. Products belong to the store rather than to a user, so only the role matters.
-
-**Validation.** One Zod schema covers both create and edit and runs on the server. Image URLs must be http or https, so `javascript:` links are rejected.
-
-**SQLite.** I chose it so the project runs without any setup. Switching to Postgres means changing the provider in `schema.prisma`, updating `DATABASE_URL` and creating a new migration (search would also need `mode: "insensitive"`). Prices are stored in cents as integers to avoid rounding problems.
-
-**Errors.** Wrong login, invalid form data, deleted products and missing permissions all show a clear message. An unknown product id shows a not-found page. Anything unexpected is logged, and `error.tsx` shows a message with a retry button.
-
-**Images.** Image URLs can come from any site, so I used a plain `img` tag instead of `next/image`, which needs every domain listed in the config. If an image fails to load, a placeholder is shown.
-
-## What I'd add next
-
-- Image upload (right now it's only a URL)
-- Toast notifications and optimistic updates
-- A page to manage users
-- Rate limiting on login
-- Docker setup
+- Image upload
+- Toast messages
+- User management page
+- Docker

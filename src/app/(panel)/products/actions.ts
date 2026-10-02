@@ -6,8 +6,17 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { productSchema, type ProductField } from "@/lib/validation";
 import { requireUser } from "@/server/auth";
-import { ForbiddenError, InvalidInputError, NotFoundError } from "@/server/errors";
-import { createProduct, deleteProduct, setProductStatus, updateProduct } from "@/server/products";
+import {
+  ForbiddenError,
+  InvalidInputError,
+  NotFoundError,
+} from "@/server/errors";
+import {
+  createProduct,
+  deleteProduct,
+  setProductStatus,
+  updateProduct,
+} from "@/server/products";
 
 export type ProductFormState = {
   message?: string;
@@ -18,12 +27,15 @@ export type ProductFormState = {
 export type ActionResult = { error?: string };
 
 function readForm(formData: FormData) {
-  const values: Partial<Record<ProductField, string>> = {};
-  for (const key of Object.keys(productSchema.shape) as ProductField[]) {
-    const value = formData.get(key);
-    if (typeof value === "string") values[key] = value;
-  }
-  return values;
+  return {
+    name: String(formData.get("name") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    price: String(formData.get("price") ?? ""),
+    stock: String(formData.get("stock") ?? ""),
+    categoryId: String(formData.get("categoryId") ?? ""),
+    imageUrl: String(formData.get("imageUrl") ?? ""),
+    status: String(formData.get("status") ?? "ACTIVE"),
+  };
 }
 
 function errorMessage(err: unknown) {
@@ -39,7 +51,10 @@ function refreshProductPages(id?: string) {
   if (id) revalidatePath(`/products/${id}`);
 }
 
-async function saveProduct(formData: FormData, id?: string): Promise<ProductFormState> {
+async function saveProduct(
+  formData: FormData,
+  id?: string,
+): Promise<ProductFormState> {
   const user = await requireUser();
   const values = readForm(formData);
   const parsed = productSchema.safeParse(values);
@@ -60,7 +75,11 @@ async function saveProduct(formData: FormData, id?: string): Promise<ProductForm
     productId = product.id;
   } catch (err) {
     if (err instanceof InvalidInputError) {
-      return { message: "Please fix the highlighted fields.", fieldErrors: err.fieldErrors, values };
+      return {
+        message: "Please fix the highlighted fields.",
+        fieldErrors: err.fieldErrors,
+        values,
+      };
     }
     return { message: errorMessage(err), values };
   }
@@ -69,17 +88,28 @@ async function saveProduct(formData: FormData, id?: string): Promise<ProductForm
   redirect(`/products/${productId}`);
 }
 
-export async function createProductAction(_prev: ProductFormState, formData: FormData) {
+export async function createProductAction(
+  _prev: ProductFormState,
+  formData: FormData,
+) {
   return saveProduct(formData);
 }
 
-export async function updateProductAction(id: string, _prev: ProductFormState, formData: FormData) {
+export async function updateProductAction(
+  id: string,
+  _prev: ProductFormState,
+  formData: FormData,
+) {
   return saveProduct(formData, id);
 }
 
-export async function changeStatusAction(id: string, status: ProductStatus): Promise<ActionResult> {
+export async function changeStatusAction(
+  id: string,
+  status: ProductStatus,
+): Promise<ActionResult> {
   const user = await requireUser();
-  if (status !== "ACTIVE" && status !== "INACTIVE") return { error: "Invalid status." };
+  if (status !== "ACTIVE" && status !== "INACTIVE")
+    return { error: "Invalid status." };
 
   try {
     await setProductStatus(user, id, status);
@@ -91,7 +121,10 @@ export async function changeStatusAction(id: string, status: ProductStatus): Pro
   return {};
 }
 
-export async function deleteProductAction(id: string, redirectToList: boolean): Promise<ActionResult> {
+export async function deleteProductAction(
+  id: string,
+  redirectToList: boolean,
+): Promise<ActionResult> {
   const user = await requireUser();
 
   try {

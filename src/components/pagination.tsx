@@ -12,18 +12,11 @@ type Props = {
   total: number;
 };
 
-function visiblePages(page: number, pageCount: number) {
-  const start = Math.max(1, Math.min(page - 2, pageCount - 4));
-  const end = Math.min(pageCount, start + 4);
-  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-}
-
 export function Pagination({ query, page, pageCount, total }: Props) {
   const from = (page - 1) * PAGE_SIZE + 1;
   const to = Math.min(page * PAGE_SIZE, total);
-  const linkClass = "btn btn-secondary min-w-9 px-2.5 py-1.5";
-  const disabledClass =
-    "btn btn-secondary min-w-9 px-2.5 py-1.5 pointer-events-none opacity-50";
+  const hasPrevious = page > 1;
+  const hasNext = page < pageCount;
 
   return (
     <nav
@@ -31,62 +24,36 @@ export function Pagination({ query, page, pageCount, total }: Props) {
       className="flex flex-col items-center justify-between gap-3 sm:flex-row"
     >
       <p className="text-sm text-gray-600">
-        Showing <span className="font-medium">{from}</span>–
-        <span className="font-medium">{to}</span> of{" "}
-        <span className="font-medium">{total}</span>
+        Showing {from}–{to} of {total}
       </p>
 
-      {pageCount > 1 && (
-        <ul className="flex items-center gap-1">
-          <li>
-            {page > 1 ? (
-              <Link
-                href={productsHref(query, { page: page - 1 })}
-                className={linkClass}
-              >
-                Previous
-              </Link>
-            ) : (
-              <span aria-disabled="true" className={disabledClass}>
-                Previous
-              </span>
-            )}
-          </li>
-          {visiblePages(page, pageCount).map((p) => (
-            <li key={p} className="hidden sm:block">
-              <Link
-                href={productsHref(query, { page: p })}
-                aria-current={p === page ? "page" : undefined}
-                aria-label={`Page ${p}`}
-                className={
-                  p === page
-                    ? "btn btn-primary min-w-9 px-2.5 py-1.5"
-                    : linkClass
-                }
-              >
-                {p}
-              </Link>
-            </li>
-          ))}
-          <li className="px-2 text-sm text-gray-600 sm:hidden">
-            {page} / {pageCount}
-          </li>
-          <li>
-            {page < pageCount ? (
-              <Link
-                href={productsHref(query, { page: page + 1 })}
-                className={linkClass}
-              >
-                Next
-              </Link>
-            ) : (
-              <span aria-disabled="true" className={disabledClass}>
-                Next
-              </span>
-            )}
-          </li>
-        </ul>
-      )}
+      <div className="flex items-center gap-3">
+        {hasPrevious ? (
+          <Link
+            href={productsHref(query, { page: page - 1 })}
+            className="btn btn-secondary"
+          >
+            Previous
+          </Link>
+        ) : (
+          <span className="btn btn-secondary opacity-50">Previous</span>
+        )}
+
+        <span className="text-sm text-gray-600">
+          Page {page} of {pageCount}
+        </span>
+
+        {hasNext ? (
+          <Link
+            href={productsHref(query, { page: page + 1 })}
+            className="btn btn-secondary"
+          >
+            Next
+          </Link>
+        ) : (
+          <span className="btn btn-secondary opacity-50">Next</span>
+        )}
+      </div>
     </nav>
   );
 }

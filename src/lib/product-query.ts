@@ -31,7 +31,11 @@ function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function oneOf<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {
+function oneOf<T extends string>(
+  value: string | undefined,
+  allowed: readonly T[],
+  fallback: T,
+): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
 }
 
@@ -52,7 +56,10 @@ export function hasActiveFilters(q: ProductQuery) {
   return q.search !== "" || q.status !== "all" || q.category !== "";
 }
 
-export function productsHref(q: ProductQuery, changes: Partial<ProductQuery> = {}) {
+export function productsHref(
+  q: ProductQuery,
+  changes: Partial<ProductQuery> = {},
+) {
   const next = { ...q, ...changes };
   const params = new URLSearchParams();
 

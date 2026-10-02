@@ -51,6 +51,7 @@ test("admin can create, find and delete a product", async ({ page }) => {
 
   await page.goto("/products");
   await page.getByLabel("Search").fill(name);
+  await page.getByLabel("Search").press("Enter");
   await expect(page).toHaveURL(/search=E2E/);
   await expect(
     page.getByRole("table").getByRole("link", { name, exact: true }),

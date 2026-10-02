@@ -19,11 +19,17 @@ export function signSession(payload: SessionPayload) {
     .sign(secretKey());
 }
 
-export async function verifySession(token: string | undefined): Promise<SessionPayload | null> {
+export async function verifySession(
+  token: string | undefined,
+): Promise<SessionPayload | null> {
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secretKey(), { algorithms: ["HS256"] });
-    return typeof payload.userId === "string" ? { userId: payload.userId } : null;
+    const { payload } = await jwtVerify(token, secretKey(), {
+      algorithms: ["HS256"],
+    });
+    return typeof payload.userId === "string"
+      ? { userId: payload.userId }
+      : null;
   } catch {
     return null;
   }

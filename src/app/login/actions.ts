@@ -8,9 +8,6 @@ import { createSession, destroySession } from "@/server/auth";
 
 export type LoginState = { error?: string; email?: string };
 
-const DUMMY_HASH =
-  "$2b$10$Ju4xJcwijOG8NUY/GGeciOQ/FD7rUmkdGUlW580vQKZLm/NZbBsjO";
-
 export async function login(
   _prev: LoginState,
   formData: FormData,
@@ -27,14 +24,19 @@ export async function login(
 
   try {
     const user = await db.user.findUnique({
-      where: { email: parsed.data.email.toLowerCase() },
+      where: { email: parsed.data.email },
     });
-    const valid = await bcrypt.compare(
+
+    if (!user) {
+      return { error: "Invalid email or password.", email };
+    }
+
+    const passwordMatches = await bcrypt.compare(
       parsed.data.password,
-      user?.passwordHash ?? DUMMY_HASH,
+      user.passwordHash,
     );
 
-    if (!user || !valid) {
+    if (!passwordMatches) {
       return { error: "Invalid email or password.", email };
     }
 

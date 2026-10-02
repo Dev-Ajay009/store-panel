@@ -289,10 +289,6 @@ async function main() {
       };
     }),
   });
-
-  console.log(
-    `Seeded ${users.length} users, ${categories.length} categories, ${products.length} products.`,
-  );
 }
 
 main()
